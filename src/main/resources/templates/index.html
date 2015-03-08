@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Hello Spring Boot!</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</head>
+	
+	<body>
+		<p>Started = <span th:text="${started}">true</span></p>
+		<div th:switch="${started}"> 
+			<p th:case="${true}"><a th:href="@{/stop}">Stop</a></p>
+			<p th:case="${false}"><a th:href="@{/start}">Start</a></p>
+			<p th:case="*">Error?</p> 
+		</div>
+		<br/>
+		<div th:each="summary : ${tickSummaries}" th:text="${summary}">tick summary</div>
+	</body>
+</html>
