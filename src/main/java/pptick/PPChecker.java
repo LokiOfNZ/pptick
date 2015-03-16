@@ -7,12 +7,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class PPChecker {
+	
+	@Value("#{'${pp.properties}'.split(',')}") 
+	private List<String> properties;
+	
+	@Autowired
+	private TickMongoRepo tickMongoRepo;
 	
 	private Map<Date, Map<Double, Tick>> dateMap = new TreeMap<>();
 	private List<String> tickSummaries = new ArrayList<>();
@@ -24,25 +32,29 @@ public class PPChecker {
 		if(run) {
 			Date date = new Date();
 	        RestTemplate restTemplate = new RestTemplate();
-	        List<Tick> ticks = Arrays.asList(restTemplate.getForObject("https://propertypartner.co/marketplace/secondary/UKCR03PH001/available", Tick[].class));
-	        for(Tick tick : ticks) {
-	        	tick.setDate(date);
-	        	Map<Double, Tick> tickMap = new TreeMap<>();
-	        	tickMap.put(tick.getAskPrice(), tick);
-	        	dateMap.put(date, tickMap);
+	        for(String prop : properties) {
+		        List<Tick> ticks = Arrays.asList(restTemplate.getForObject("https://propertypartner.co/marketplace/secondary/" + prop + "/available", Tick[].class));
+		        for(Tick tick : ticks) {
+		        	tick.setPropertyId(prop);
+		        	tick.setDate(date);
+		        	Map<Double, Tick> tickMap = new TreeMap<>();
+		        	tickMap.put(tick.getAskPrice(), tick);
+		        	dateMap.put(date, tickMap);
+		        	tickMongoRepo.insert(tick);
+		        }
+		        String tickSummary = "[" + prop + " / " + date + "] " 
+		        		+ ticks.get(0) + " " 
+		        		+ ticks.get(1) + " " 
+		        		+ ticks.get(2) + " " 
+		        		+ ticks.get(3) + " " 
+		        		+ ticks.get(4) + " " 
+		        		+ ticks.get(5) + " " 
+		        		+ ticks.get(6) + " " 
+		        		+ ticks.get(7) + " " 
+		        		+ ticks.get(8);
+		        tickSummaries.add(tickSummary);
+		        System.out.println(tickSummary);
 	        }
-	        String tickSummary = "[" + date + "] " 
-	        		+ ticks.get(0) + " " 
-	        		+ ticks.get(1) + " " 
-	        		+ ticks.get(2) + " " 
-	        		+ ticks.get(3) + " " 
-	        		+ ticks.get(4) + " " 
-	        		+ ticks.get(5) + " " 
-	        		+ ticks.get(6) + " " 
-	        		+ ticks.get(7) + " " 
-	        		+ ticks.get(8);
-	        tickSummaries.add(tickSummary);
-	        System.out.println(tickSummary);
 		}
 	}
 

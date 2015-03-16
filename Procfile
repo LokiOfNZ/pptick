@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -jar target/*.jar
+web: java -Dserver.port=$PORT -Dspring.data.mongodb.uri=$MONGOLAB_URI -jar target/pptick-1.jar
