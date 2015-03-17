@@ -26,7 +26,7 @@ public class PPChecker {
 	
 	private boolean run = true;
 
-//	@Scheduled(initialDelay = 0, fixedDelay = 900000)
+	@Scheduled(initialDelay = 0, fixedDelay = 900000)
 	public void doSomething() {
 		if(run) {
 			Date date = new Date();
