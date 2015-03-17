@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Hello Spring Boot!</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+	</head>
+	
+	<body>
+		<div>Property Id = <span th:text="${propertyId}"></span></div>
+		<br/>
+		<div><a th:href="@{/}">Back to home</a></div>
+		<br/>
+		<div class="table-pagination">
+		    <ul class="pagination">
+		        <li th:class="${ticks.number eq 0} ? 'disabled' : ''">
+		            <a th:href="@{${'/property/'} + ${propertyId}(page=${ticks.number-1})}">Previous</a>
+		        </li>
+		        <li th:each="pageNo : ${#numbers.sequence(0, ticks.totalPages - 1)}" th:class="${ticks.number eq pageNo}? 'active' : ''">
+		            <a th:if="${not (ticks.number eq pageNo)}" th:href="@{${'/property/'} + ${propertyId}(page=${pageNo})}">
+		                <span th:text="${pageNo}"></span>
+		            </a>
+		            <span th:if="${ticks.number eq pageNo}" th:text="${pageNo}"></span>
+		        </li>
+		        <li th:class="${ticks.number + 1 ge ticks.totalPages} ? 'disabled' : ''">
+		            <a th:href="@{${'/property/'} + ${propertyId}(page=${ticks.number+1})}">Next</a>
+		        </li>
+		    </ul>
+		</div>
+		<br/>
+		<div th:each="tick : ${ticks}" th:text="${tick}">tick summary</div>
+	</body>
+</html>

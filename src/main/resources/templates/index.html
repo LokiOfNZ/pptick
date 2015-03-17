@@ -3,6 +3,7 @@
 	<head>
 		<title>Hello Spring Boot!</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
 	</head>
 	
 	<body>
@@ -13,6 +14,8 @@
 			<p th:case="*">Error?</p> 
 		</div>
 		<br/>
-		<div th:each="summary : ${tickSummaries}" th:text="${summary}">tick summary</div>
+		<div th:each="propertyId : ${properties}">
+			<a th:href="@{${'/property/'} + ${propertyId}}"><span th:text="${propertyId}"></span></a>
+		</div>
 	</body>
 </html>

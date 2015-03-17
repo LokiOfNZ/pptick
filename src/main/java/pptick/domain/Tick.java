@@ -1,4 +1,4 @@
-package pptick;
+package pptick.domain;
 
 import java.util.Date;
 
@@ -52,7 +52,7 @@ public class Tick {
 
 	@Override
 	public String toString() {
-		return askPrice + " = " + units;
+		return "[" + propertyId + " / " + date + "] " + askPrice + " = " + units;
 	}
 	
 }
