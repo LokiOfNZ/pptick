@@ -3,8 +3,6 @@ package pptick.scheduled;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +11,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import pptick.domain.Tick;
+import pptick.domain.TickList;
+import pptick.domain.mongo.TickListMongoRepo;
 import pptick.domain.mongo.TickMongoRepo;
 
 @Component
@@ -23,6 +23,9 @@ public class PPChecker {
 	
 	@Autowired
 	private TickMongoRepo tickMongoRepo;
+	
+	@Autowired
+	private TickListMongoRepo tickListMongoRepo;
 	
 	private boolean run = true;
 
@@ -36,10 +39,13 @@ public class PPChecker {
 		        for(Tick tick : ticks) {
 		        	tick.setPropertyId(prop);
 		        	tick.setDate(date);
-		        	Map<Double, Tick> tickMap = new TreeMap<>();
-		        	tickMap.put(tick.getAskPrice(), tick);
 		        	tickMongoRepo.insert(tick);
 		        }
+		        TickList tickList = new TickList();
+		        tickList.setPropertyId(prop);
+		        tickList.setDate(date);
+		        tickList.setTicks(ticks);
+	        	tickListMongoRepo.insert(tickList);
 		        System.out.println("Processed property " + prop + " at " + date);
 	        }
 		}

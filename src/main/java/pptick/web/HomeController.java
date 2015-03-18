@@ -15,9 +15,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
-import pptick.domain.Tick;
+import pptick.domain.TickList;
+import pptick.domain.mongo.TickListMongoRepo;
 import pptick.domain.mongo.TickMongoRepo;
 import pptick.scheduled.PPChecker;
+import pptick.service.PPCheckerService;
  
 @Controller
 class HomeController {
@@ -29,7 +31,13 @@ class HomeController {
 	private TickMongoRepo tickMongoRepo;
 	
 	@Autowired
+	private TickListMongoRepo tickListMongoRepo;
+	
+	@Autowired
 	private PPChecker ppChecker;
+	
+	@Autowired
+	private PPCheckerService ppCheckerService;
  
     @RequestMapping("/")
     public ModelAndView index() {
@@ -50,14 +58,20 @@ class HomeController {
     	ppChecker.setRun(false);
         return new RedirectView("/");
     }
+ 
+    @RequestMapping("/process-ticks")
+    public View processTicks() {
+    	ppCheckerService.processTicksToTickLists();
+        return new RedirectView("/");
+    }
 
     @RequestMapping("/property/{propertyId}")
     public ModelAndView view(@PathVariable String propertyId, @RequestParam(required=false) Integer page) {
     	ModelAndView mav = new ModelAndView("property");
     	mav.addObject("propertyId", propertyId);
     	
-    	Page<Tick> ticks = tickMongoRepo.findByPropertyId(propertyId, new PageRequest(page == null ? 0 : page, 20, Direction.ASC, "date", "askPrice"));
-    	mav.addObject("ticks", ticks);
+    	Page<TickList> tickLists = tickListMongoRepo.findByPropertyId(propertyId, new PageRequest(page == null ? 0 : page, 100, Direction.ASC, "date"));
+    	mav.addObject("tickLists", tickLists);
     	
     	return mav;
     }

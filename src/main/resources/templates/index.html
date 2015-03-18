@@ -13,7 +13,9 @@
 			<p th:case="${false}"><a th:href="@{/start}">Start</a></p>
 			<p th:case="*">Error?</p> 
 		</div>
-		<br/>
+		
+		<div><p><a th:href="@{/process-ticks}" onclick="return confirm('Are you sure?');">Process Ticks</a></p></div>
+		
 		<div th:each="propertyId : ${properties}">
 			<a th:href="@{${'/property/'} + ${propertyId}}"><span th:text="${propertyId}"></span></a>
 		</div>

@@ -13,21 +13,21 @@
 		<br/>
 		<div class="table-pagination">
 		    <ul class="pagination">
-		        <li th:class="${ticks.number eq 0} ? 'disabled' : ''">
-		            <a th:href="@{${'/property/'} + ${propertyId}(page=${ticks.number-1})}">Previous</a>
+		        <li th:class="${tickLists.number eq 0} ? 'disabled' : ''">
+		            <a th:href="@{${'/property/'} + ${propertyId}(page=${tickLists.number-1})}">Previous</a>
 		        </li>
-		        <li th:each="pageNo : ${#numbers.sequence(0, ticks.totalPages - 1)}" th:class="${ticks.number eq pageNo}? 'active' : ''">
-		            <a th:if="${not (ticks.number eq pageNo)}" th:href="@{${'/property/'} + ${propertyId}(page=${pageNo})}">
+		        <li th:each="pageNo : ${#numbers.sequence(0, tickLists.totalPages - 1)}" th:class="${tickLists.number eq pageNo}? 'active' : ''">
+		            <a th:if="${not (tickLists.number eq pageNo)}" th:href="@{${'/property/'} + ${propertyId}(page=${pageNo})}">
 		                <span th:text="${pageNo}"></span>
 		            </a>
-		            <span th:if="${ticks.number eq pageNo}" th:text="${pageNo}"></span>
+		            <span th:if="${tickLists.number eq pageNo}" th:text="${pageNo}"></span>
 		        </li>
-		        <li th:class="${ticks.number + 1 ge ticks.totalPages} ? 'disabled' : ''">
-		            <a th:href="@{${'/property/'} + ${propertyId}(page=${ticks.number+1})}">Next</a>
+		        <li th:class="${tickLists.number + 1 ge tickLists.totalPages} ? 'disabled' : ''">
+		            <a th:href="@{${'/property/'} + ${propertyId}(page=${tickLists.number+1})}">Next</a>
 		        </li>
 		    </ul>
 		</div>
 		<br/>
-		<div th:each="tick : ${ticks}" th:text="${tick}">tick summary</div>
+		<div th:each="tickList : ${tickLists}" th:text="${tickList}">tick summary</div>
 	</body>
 </html>
