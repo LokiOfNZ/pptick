@@ -70,7 +70,7 @@ class HomeController {
     	ModelAndView mav = new ModelAndView("property");
     	mav.addObject("propertyId", propertyId);
     	
-    	Page<TickList> tickLists = tickListMongoRepo.findByPropertyId(propertyId, new PageRequest(page == null ? 0 : page, 100, Direction.ASC, "date"));
+    	Page<TickList> tickLists = tickListMongoRepo.findByPropertyId(propertyId, new PageRequest(page == null ? 0 : page, 100, Direction.DESC, "date"));
     	mav.addObject("tickLists", tickLists);
     	
     	return mav;
