@@ -15,6 +15,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.sendgrid.SendGrid;
+import com.sendgrid.SendGridException;
+import com.sendgrid.SendGrid.Email;
+
 import pptick.domain.TickList;
 import pptick.domain.mongo.TickListMongoRepo;
 import pptick.domain.mongo.TickMongoRepo;
@@ -38,6 +42,15 @@ class HomeController {
 	
 	@Autowired
 	private PPCheckerService ppCheckerService;
+	
+	@Autowired
+	private SendGrid sendGrid;
+	
+	@Value("${ppcheck.email.defaultTo}")
+	private String emailTo;
+	
+	@Value("${ppcheck.email.defaultFrom}")
+	private String emailFrom;
  
     @RequestMapping("/")
     public ModelAndView index() {
@@ -62,6 +75,25 @@ class HomeController {
     @RequestMapping("/process-ticks")
     public View processTicks() {
     	ppCheckerService.processTicksToTickLists();
+        return new RedirectView("/");
+    }
+ 
+    @RequestMapping("/test-email")
+    public View testEmail() {
+		
+		Email email = new Email();
+		email.addTo(emailTo);
+		email.setFrom(emailFrom);
+		email.setSubject("Yay worked!");
+		email.setText("Whoooops");
+		try {
+			SendGrid.Response response = sendGrid.send(email);
+			System.out.println(response.getCode());
+			System.out.println(response.getMessage());
+		} catch (SendGridException e) {
+			System.out.println(e);
+		}
+		
         return new RedirectView("/");
     }
 
