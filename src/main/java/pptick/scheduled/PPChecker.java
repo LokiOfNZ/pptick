@@ -79,7 +79,7 @@ public class PPChecker {
 		    			e.printStackTrace();
 		    		}
 		        }
-		        lastPriceMap.put(prop, lastPrice);
+		        lastPriceMap.put(prop, tickList.getTicks().get(0).getAskPrice());
 		        
 		        System.out.println("Processed property " + prop + " at " + date);
 	        }
