@@ -51,7 +51,7 @@ public class PPChecker {
 		        if(secondaryMarket != null) {
 			        Double thisPrice = secondaryMarket.getMinPrice();
 			        Double lastPrice = lastPriceMap.get(prop);
-			        if(lastPrice != null && thisPrice < lastPrice) {
+			        if(lastPrice != null && thisPrice < lastPrice - 1) {
 			    		Email email = new Email();
 			    		email.addTo(emailTo);
 			    		email.setFrom(emailFrom);
