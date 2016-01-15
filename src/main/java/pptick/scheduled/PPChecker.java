@@ -1,6 +1,5 @@
 package pptick.scheduled;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,26 +11,19 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import pptick.domain.Tick;
-import pptick.domain.TickList;
-import pptick.domain.mongo.TickListMongoRepo;
-import pptick.domain.mongo.TickMongoRepo;
-
 import com.sendgrid.SendGrid;
-import com.sendgrid.SendGridException;
 import com.sendgrid.SendGrid.Email;
+import com.sendgrid.SendGridException;
+
+import pptick.domain.PropertySummary;
+import pptick.domain.PropertySummary.SecondaryMarket;
+import pptick.service.PropertyService;
 
 @Component
 public class PPChecker {
-	
-	@Value("#{'${pp.properties}'.split(',')}") 
-	private List<String> properties;
-	
+
 	@Autowired
-	private TickMongoRepo tickMongoRepo;
-	
-	@Autowired
-	private TickListMongoRepo tickListMongoRepo;
+	private PropertyService propertyService;
 	
 	@Autowired
 	private SendGrid sendGrid;
@@ -51,37 +43,31 @@ public class PPChecker {
 		if(run) {
 			Date date = new Date();
 	        RestTemplate restTemplate = new RestTemplate();
+	    	List<String> properties = propertyService.getProperties();
 	        for(String prop : properties) {
-		        List<Tick> ticks = Arrays.asList(restTemplate.getForObject("https://propertypartner.co/marketplace/secondary/" + prop + "/available", Tick[].class));
-		        for(Tick tick : ticks) {
-		        	tick.setPropertyId(prop);
-		        	tick.setDate(date);
-		        	tickMongoRepo.insert(tick);
-		        }
-		        TickList tickList = new TickList();
-		        tickList.setPropertyId(prop);
-		        tickList.setDate(date);
-		        tickList.setTicks(ticks);
-	        	tickListMongoRepo.insert(tickList);
+		        PropertySummary property = restTemplate.getForObject("https://propertypartner.co/properties/" + prop + "/summary", PropertySummary.class);
 		        
-		        Double thisPrice = tickList.getTicks().get(0).getAskPrice();
-		        Double lastPrice = lastPriceMap.get(prop);
-		        if(lastPrice != null && thisPrice < lastPrice) {
-		    		Email email = new Email();
-		    		email.addTo(emailTo);
-		    		email.setFrom(emailFrom);
-		    		email.setSubject("Price drop alert! [" + prop + "]");
-		    		email.setText("Price drop on property " + prop + " = " + lastPrice + " -> " + thisPrice);
-		    		try {
-		    			SendGrid.Response response = sendGrid.send(email);
-		    			System.out.println("Price drop alert for property " + prop + " sent: " + response.getCode() + " / " + response.getMessage());
-		    		} catch (SendGridException e) {
-		    			e.printStackTrace();
-		    		}
+		        SecondaryMarket secondaryMarket = property.getSecondaryMarket();
+		        if(secondaryMarket != null) {
+			        Double thisPrice = secondaryMarket.getMinPrice();
+			        Double lastPrice = lastPriceMap.get(prop);
+			        if(lastPrice != null && thisPrice < lastPrice) {
+			    		Email email = new Email();
+			    		email.addTo(emailTo);
+			    		email.setFrom(emailFrom);
+			    		email.setSubject("Price drop alert! [" + prop + "]");
+			    		email.setText("Price drop on property " + prop + " = " + lastPrice + " -> " + thisPrice + ". URL : https://propertypartner.co/properties/" + prop);
+			    		try {
+			    			SendGrid.Response response = sendGrid.send(email);
+			    			System.out.println("Price drop alert for property " + prop + " sent: " + response.getCode() + " / " + response.getMessage());
+			    		} catch (SendGridException e) {
+			    			e.printStackTrace();
+			    		}
+			        }
+			        lastPriceMap.put(prop, property.getSecondaryMarket().getMinPrice());
+			        
+			        System.out.println("Processed property " + prop + " at " + date + " minPrice = " + property.getSecondaryMarket().getMinPrice());
 		        }
-		        lastPriceMap.put(prop, tickList.getTicks().get(0).getAskPrice());
-		        
-		        System.out.println("Processed property " + prop + " at " + date);
 	        }
 		}
 	}
