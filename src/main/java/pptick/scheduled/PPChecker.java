@@ -66,7 +66,7 @@ public class PPChecker {
 		        
 		        Double thisPrice = tickList.getTicks().get(0).getAskPrice();
 		        Double lastPrice = lastPriceMap.get(prop);
-		        if(lastPrice != null && thisPrice < lastPrice) {
+		        if(lastPrice != null && thisPrice < lastPrice - 1) {
 		    		Email email = new Email();
 		    		email.addTo(emailTo);
 		    		email.setFrom(emailFrom);
